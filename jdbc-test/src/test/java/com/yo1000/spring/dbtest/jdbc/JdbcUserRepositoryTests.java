@@ -4,13 +4,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -19,8 +19,11 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
-@Transactional
+@DataJdbcTest
+// `@DataJdbcTest` uses an embedded database such as H2 by default,
+// so set `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)`
+// to suppress the default behaviour when using TestContainers or similar.
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 public class JdbcUserRepositoryTests {
     @Container
