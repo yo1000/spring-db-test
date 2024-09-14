@@ -14,5 +14,5 @@ How to run
 --------------------------------------------------------------------------------
 
 ```bash
-./mvnw clean test
+./mvnw clean test jacoco:report-aggregate
 ```

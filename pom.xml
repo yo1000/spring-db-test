@@ -13,4 +13,37 @@
         <module>jdbc-test</module>
 		<module>jpa-test</module>
 	</modules>
+
+	<dependencies>
+		<!-- List modules that output coverage reports as dependencies -->
+		<dependency>
+			<groupId>com.yo1000</groupId>
+			<artifactId>jdbc-test</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yo1000</groupId>
+			<artifactId>jpa-test</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<id>report-aggregate</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report-aggregate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
