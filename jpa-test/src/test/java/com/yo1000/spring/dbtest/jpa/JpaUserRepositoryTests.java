@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -18,10 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-// `@DataJpaTest` uses an embedded database such as H2 by default,
-// so set `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)`
-// to suppress the default behaviour when using TestContainers or similar.
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+// No required configure since Spring Boot 3.4.0
+// @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
 public class JpaUserRepositoryTests {
     @Container
