@@ -3,11 +3,14 @@ package com.yo1000.spring.dbtest.jpa;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -77,24 +80,36 @@ public class JpaUserRepositoryTests {
         Assertions.assertThat(actualUsers.get(1).getEmail()).isEqualTo("bob@localhost");
     }
 
-    @Test
-    void testFindById() {
-        User testUser = new User();
-        testUser.setId(1000);
-        testUser.setUsername("alice");
-        testUser.setEmail("alice@localhost");
-
-        testEntityManager.persist(testUser);
-
-        Optional<User> actualUsers = userRepo.findById(1000);
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, delimiterString = "|", textBlock = """
+            [id] | [username] | [email]
+            1000 | 'alice'    | 'alice@localhost'
+            2000 | 'bob'      | 'bob@localhost'
+            """)
+    // When setting up test data, `@Sql` annotations can be used alternative to `EntityManager`.
+    @Sql(statements = {
+            // When SQL code breaks a line in the middle of a statement,
+            // it follows one of the rules.
+            // - Option 1: Add a semicolon `;` at the end of the SQL statement.
+            // - Option 2: Add a backslash `\` at the end of the line where the SQL statement is broken.
+            """
+            INSERT INTO "user" (id, username, email)
+            VALUES (1000, 'alice', 'alice@localhost');
+            """, """
+            INSERT INTO "user" (id, username, email) \
+            VALUES (2000, 'bob', 'bob@localhost')
+            """}
+    )
+    void testFindById(Integer id, String username, String email) {
+        Optional<User> actualUsers = userRepo.findById(id);
 
         Assertions.assertThat(actualUsers).isNotNull();
         Assertions.assertThat(actualUsers.isPresent()).isTrue();
 
         actualUsers.ifPresent(user -> {
-            Assertions.assertThat(user.getId()).isEqualTo(1000);
-            Assertions.assertThat(user.getUsername()).isEqualTo("alice");
-            Assertions.assertThat(user.getEmail()).isEqualTo("alice@localhost");
+            Assertions.assertThat(user.getId()).isEqualTo(id);
+            Assertions.assertThat(user.getUsername()).isEqualTo(username);
+            Assertions.assertThat(user.getEmail()).isEqualTo(email);
         });
     }
 
@@ -120,6 +135,5 @@ public class JpaUserRepositoryTests {
         Assertions.assertThat(actualUser.getId()).isEqualTo(1000);
         Assertions.assertThat(actualUser.getUsername()).isEqualTo("alice");
         Assertions.assertThat(actualUser.getEmail()).isEqualTo("alice@localhost");
-
     }
 }

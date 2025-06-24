@@ -3,6 +3,8 @@ package com.yo1000.spring.dbtest.jdbc;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.jdbc.core.DataClassRowMapper;
@@ -49,18 +51,18 @@ public class JdbcUserRepositoryTests {
     @Test
     // When using JDBC, the Sql annotation is used to setup test data.
     @Sql(statements = {
-            // When SQL wraps in the middle of a statement,
-            // a backslash `\` is appended at the end of the line.
+            // When SQL code breaks a line in the middle of a statement,
+            // it follows one of the rules.
+            // - Option 1: Add a semicolon `;` at the end of the SQL statement.
+            // - Option 2: Add a backslash `\` at the end of the line where the SQL statement is broken.
             """
-            INSERT INTO "user" (id, username, email) \
-            VALUES (1000, 'alice', 'alice@localhost')
+            INSERT INTO "user" (id, username, email)
+            VALUES (1000, 'alice', 'alice@localhost');
             """, """
             INSERT INTO "user" (id, username, email) \
             VALUES (2000, 'bob', 'bob@localhost')
             """},
-            // (Optional)
-            // When using multiple data sources,
-            // Can switch target of SQL by configure Bean id.
+            // Option: When using multiple data sources, Can switch target of SQL by configure Bean id.
             config = @SqlConfig(dataSource = "dataSource")
     )
     void testFindAll() {
@@ -80,27 +82,37 @@ public class JdbcUserRepositoryTests {
         Assertions.assertThat(actualUsers.get(1).email()).isEqualTo("bob@localhost");
     }
 
-    @Test
+    @ParameterizedTest
+    @CsvSource(useHeadersInDisplayName = true, delimiterString = "|", textBlock = """
+            [id] | [username] | [email]
+            1000 | 'alice'    | 'alice@localhost'
+            2000 | 'bob'      | 'bob@localhost'
+            """)
     @Sql(statements = {
-            // When SQL wraps in the middle of a statement,
-            // a backslash `\` is appended at the end of the line.
+            // When SQL code breaks a line in the middle of a statement,
+            // it follows one of the rules.
+            // - Option 1: Add a semicolon `;` at the end of the SQL statement.
+            // - Option 2: Add a backslash `\` at the end of the line where the SQL statement is broken.
             """
+            INSERT INTO "user" (id, username, email)
+            VALUES (1000, 'alice', 'alice@localhost');
+            """, """
             INSERT INTO "user" (id, username, email) \
-            VALUES (1000, 'alice', 'alice@localhost')
-            """
-    })
-    void testFindById() {
+            VALUES (2000, 'bob', 'bob@localhost')
+            """}
+    )
+    void testFindById(Integer id, String username, String email) {
         JdbcUserRepository userRepo = new JdbcUserRepository(jdbcClient);
 
-        Optional<User> actualUsers = userRepo.findById(1000);
+        Optional<User> actualUsers = userRepo.findById(id);
 
         Assertions.assertThat(actualUsers).isNotNull();
         Assertions.assertThat(actualUsers.isPresent()).isTrue();
 
         actualUsers.ifPresent(user -> {
-            Assertions.assertThat(user.id()).isEqualTo(1000);
-            Assertions.assertThat(user.username()).isEqualTo("alice");
-            Assertions.assertThat(user.email()).isEqualTo("alice@localhost");
+            Assertions.assertThat(user.id()).isEqualTo(id);
+            Assertions.assertThat(user.username()).isEqualTo(username);
+            Assertions.assertThat(user.email()).isEqualTo(email);
         });
     }
 
