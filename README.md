@@ -1,13 +1,13 @@
 Spring DB Test demo
 ================================================================================
 
-Demonstration of testing when using JDBC and JPA each.
+Demonstration of testing using JDBC and JPA respectively in Spring Boot 4.x.
 
 
 Requirements
 --------------------------------------------------------------------------------
 
-- Java 21
+- Java 25
 
 
 How to run
