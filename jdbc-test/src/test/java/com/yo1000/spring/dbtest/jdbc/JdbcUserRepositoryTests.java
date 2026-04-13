@@ -13,10 +13,9 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +24,7 @@ import java.util.Optional;
 @Testcontainers
 public class JdbcUserRepositoryTests {
     @Container
-    static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DockerImageName
-            .parse("postgres"));
+    static PostgreSQLContainer postgresContainer = new PostgreSQLContainer("postgres");
 
     @BeforeAll
     static void startContainers() {
